@@ -287,13 +287,38 @@ int main() {
     reset();
 
     SDL_Event event;
-    uint32_t last_time = 0;
+    uint32_t last = 0, current;
     while (true) {
         while (SDL_PollEvent(&event)) {
             if (process_event(&event) == -1) goto end;
         }
 
-        logic(&last_time);
+	    current = SDL_GetTicks();
+	    switch (state) {
+	        case GAME:
+	            if (current > last + TIMESTEP) {
+	                snake_move(snake);
+	                switch (checkCollision()) {
+	                    case 1:
+	                        newTarget();
+	                        snake_add_cell(snake);
+	                        break;
+	                    case 2:
+	                    case 3:
+	                        state = OVER;
+	                    default:
+	                        break;
+
+	                }
+	                *last_time = current_time;
+	            }
+	            break;
+	        case OVER:
+	            break;
+
+	        case MENU:
+	            break;
+	    }
 
         render();
     }
